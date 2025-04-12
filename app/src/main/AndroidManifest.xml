@@ -33,6 +33,11 @@
             android:foregroundServiceType="location" />
 
         <service
+            android:name=".services.LocationForegroundService"
+            android:exported="false"
+            android:foregroundServiceType="location" />
+
+        <service
             android:name="androidx.work.impl.foreground.SystemForegroundService"
             android:exported="false"
             android:foregroundServiceType="location" />

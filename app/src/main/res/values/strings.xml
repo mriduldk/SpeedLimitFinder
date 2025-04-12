@@ -3,4 +3,7 @@
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
+    <string name="speed_limit_finder_text">We’ll alert you when you approach a speed-restricted zone. Drive safe!</string>
+    <string name="speed_limit_finder_title">Speed Limit Finder Activated</string>
+    <string name="nearest_speed_limit_zones">Nearest Speed Limit Zones</string>
 </resources>
