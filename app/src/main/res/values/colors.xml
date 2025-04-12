@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="white_grey">#E8E6E6</color>
+    <color name="bg_white_grey">#F8F8F8</color>
+    <color name="color_divider">#ECECEC</color>
+
+    <color name="color_divider_new">#347E7E7E</color>
+
+    <color name="transparent_new">#257E7E7E</color>
+
+    <color name="color_text">#292929</color>
+    <color name="color_text_sub">#5E5E5E</color>
+    <color name="color_text_sub_new">#AFADAD</color>
+
+
+    <color name="color_tab_selected">#1E88E5</color>
+    <color name="color_tab_not_selected">#777777</color>
+
+
+    <color name="color_blue">#1E88E5</color>
+    <color name="color_blue_transparent_10">#1A1E88E5</color>
+
+    <color name="color_link">#5151E1</color>
+
+    <color name="color_stroke">#E1E1E1</color>
+
+    <color name="colorPrimary">#F38C79</color>
+    <!--<color name="colorPrimary">#FF9F9F</color>-->
+    <color name="colorPrimaryDark">#FF8F8F</color>
+    <color name="colorAccent">#BCE29E</color>
+
+    <color name="colorSecondary">#689F38</color>
+    <color name="colorSecondaryDark">#54812D</color>
+    <color name="colorOnSecondary">#B8E8FC</color>
+
+    <color name="blue_grey_400">#78909C</color>
+    <color name="light_grey_400">#E6E6E6</color>
+    <color name="light_green_700">#689F38</color>
+    <color name="gray">#BFBFBF</color>
+    <color name="blue">#4286f4</color>
+    <color name="green">#77FF00</color>
+    <color name="blue_transparent_10">#1A4286f4</color>
+    <color name="blue_transparent_90">#E64286F4</color>
+    <color name="blue_transparent_80">#CC4286F4</color>
+
+    <color name="gender_selected">#804286F4</color>
+    <color name="gender_not_selected">#CCFCFCFC</color>
+
+
+
+    <color name="red">#f44242</color>
+    <color name="transparent">#22000000</color>
+    <color name="transparent_complete">#00000000</color>
+
+
+    <color name="statusBarColor">#F38C79</color>
+    <color name="statusBarColorDark">#EAE6E0</color>
+    <color name="github">#FFF5E4</color>
+    <color name="facebook">#E4E8FD</color>
+
+    <color name="colorOverlay">#78ffffff</color>
+    <color name="colorAccentOverlay">#1400bcd4</color>
+    <color name="colorTransparentBlack">#14000000</color>
+    <color name="colorPrimaryTransparent">#6400bcd4</color>
+
+    <color name="color_1">#FF9F9F</color>
+    <color name="color_1_1">#FDC9C9</color>
+    <color name="color_2">#FCDDB0</color>
+    <color name="color_3">#E5EBB2</color>
+    <color name="color_4">#BCE29E</color>
+    <color name="color_40">#95C171</color>
+    <color name="color_5">#FF8DC7</color>
+    <color name="color_6">#C8FFD4</color>
+    <color name="color_7">#B8E8FC</color>
+    <color name="color_8">#FFF8EA</color>
+    <color name="color_9">#F2D388</color>
+    <color name="color_10">#ECC5FB</color>
+    <color name="color_11">#B7C4CF</color>
+    <color name="color_12">#C98474</color>
+    <color name="color_13">#54BAB9</color>
+
+
+    <color name="color_equal_share">#4DFF9F9F</color>
+    <color name="color_extra_share">#4D689F38</color>
+    <color name="color_paid_amount">#4D4286F4</color>
+
+    <color name="view_details_headers">#22000000</color>
+
+
+    <color name="text_color_header">#222222</color>
+    <color name="text_color_regular">#292929</color>
+    <color name="text_color_sub_header">#5E5E5E</color>
+
+
+    <color name="updated_failed">#F44336</color>
+    <color name="updated_success">#59B607</color>
+
+
+    <color name="bgHeader">#74ECECEC</color>
+    <color name="bgHeaderDarker">#7ED5D5D5</color>
+
+    <color name="light_beige">#F0E4D4</color>
+    <color name="light_purple">#BAA7D3</color>
+    <color name="light_gray">#F5F1FA</color>
+    <color name="pale_purple">#E8DFF2</color>
+    <color name="light_gray2">#EBEBEB</color>
+    <color name="orange">#FFB561</color>
+    <color name="aqua">#98DCCC</color>
+    <color name="almost_white">#FEFEFE</color>
+
+
+    <color name="light_purple_transparent">#25000000</color>
+
+
+
+    <color name="bgColorDark">#F1FEFF</color>
+    <color name="bgColor">#FFFFFF</color>
+    <color name="colorBlue900">#2ab7ca</color>
+    <color name="colorBlue100">#2ab7ca</color>
+
+    <color name="colorOrangeLight">#F45F5E</color>
+    <color name="colorOrange">#fe4a49</color>
+    <color name="colorOrange2">#F05454</color>
+    <color name="colorOrangeDark">#F42625</color>
+
+    <color name="colorBlueLight">#48B7C6</color>
+    <color name="colorBlueTab">#B2F2FB</color>
+    <color name="colorBlue">#2ab7ca</color>
+    <color name="colorBlueTransparent">#5E2AB7CA</color>
+    <color name="colorBlueDark">#08A7BC</color>
+    <color name="colorBlue_bg_round_image">#D5F5F9</color>
+    <color name="colorBlue_main_round_image">#048EA1</color>
+
+    <color name="colorYellow">#fed766</color>
+    <color name="colorLightWhite">#e6e6ea</color>
+    <color name="colorNearWhite">#f4f4f8</color>
+
+    <color name="colorHashtag">#2196F3</color>
+    <color name="colorGoogleBlue">#4285F4</color>
+
+    <color name="sub_text_color">#515151</color>
+    <color name="text_color">#292828</color>
+
+
+    <color name="redBackground">#dc2109</color>
+    <color name="fontColor">#2ab7c9</color>
+
+
+
+    <!--normal colors-->
+    <color name="darkTextColor">#020000</color>
+    <color name="themeColor">#11CFC5</color>
+
+
+    <!--colors for light mode-->
+    <color name="contentTextColor">#020000</color>
+    <color name="register_bk_color">#11CFC5</color>
+    <color name="login_bk_color">#fff</color>
+    <color name="whiteTextColor">#fff</color>
+    <color name="primaryTextColor">#11CFC5</color>
+
+    <color name="debit_color">#F42625</color>
+    <color name="credit_color">#5cb85c</color>
+
+    <color name="district_not_match">#FFDBB5</color>
+
+
+</resources>
