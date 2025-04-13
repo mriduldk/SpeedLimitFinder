@@ -11,7 +11,11 @@ import android.speech.tts.TextToSpeech
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.ViewModelProvider
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.room.Room
+import com.google.android.gms.location.CurrentLocationRequest
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -20,13 +24,17 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.jypko.speedlimitfinder.R
+import com.jypko.speedlimitfinder.localdatabase.AppDatabase
 import com.jypko.speedlimitfinder.model.SpeedLimitZone
+import com.jypko.speedlimitfinder.utils.Constants
+import com.jypko.speedlimitfinder.viewmodel.SpeedLimitViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 import java.util.Locale
 import kotlin.coroutines.resume
 import kotlin.math.abs
@@ -36,10 +44,11 @@ class LocationForegroundService : Service() {
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationCallback: LocationCallback
-    private val speedLimitZones = listOf(
-        SpeedLimitZone(26.577515, 93.760719), // Example points
-        SpeedLimitZone(26.586206, 93.752060)
-    )
+//    private val speedLimitZones = listOf(
+//        SpeedLimitZone(26.577515, 93.760719), // Example points
+//        SpeedLimitZone(26.586206, 93.752060)
+//    )
+    private var speedLimitZones : List<SpeedLimitZone> ?= null
 
     private var isTracking = false
     private var job: Job? = null
@@ -64,6 +73,7 @@ class LocationForegroundService : Service() {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         startForegroundService()
         startCheckingNearbyZones()
+        getSpeedLimitZonesFromLocalDatabase()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -77,9 +87,23 @@ class LocationForegroundService : Service() {
             return START_NOT_STICKY
         }
 
-        startForegroundService()
+        //startForegroundService()
 
         return START_STICKY
+    }
+
+    private fun getSpeedLimitZonesFromLocalDatabase() {
+
+        val localDB = Room.databaseBuilder(application, AppDatabase::class.java, Constants.DATABASE_NAME).fallbackToDestructiveMigration().build()
+
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val allZones = localDB.speedLimitZoneDao().getAllForService()
+                speedLimitZones = allZones
+            } catch (e: Exception) {
+                Log.e("ForegroundService", "Error fetching data from database: $e")
+            }
+        }
     }
 
     private fun startForegroundService() {
@@ -164,7 +188,7 @@ class LocationForegroundService : Service() {
     }
 
     private fun getNearestZoneWithin5km(current: Location): SpeedLimitZone? {
-        return speedLimitZones.minByOrNull {
+        return speedLimitZones?.minByOrNull {
             val loc = Location("").apply {
                 latitude = it.latitude
                 longitude = it.longitude

@@ -12,6 +12,7 @@ import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.UpdateAvailability
 import com.google.firebase.firestore.FirebaseFirestore
 import com.jypko.speedlimitfinder.localdatabase.AppDatabase
+import com.jypko.speedlimitfinder.model.Donator
 import com.jypko.speedlimitfinder.model.SpeedLimitZone
 import com.jypko.speedlimitfinder.utils.Constants
 import com.jypko.speedlimitfinder.utils.SharedPref
@@ -32,9 +33,9 @@ class SplashScreenActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash_screen)
 
-        appUpdateCheck()
+        //fetchDonatorFireStoreData()
         //fetchFireStoreData()
-
+        appUpdateCheck()
     }
 
     private fun appUpdateCheck() {
@@ -177,6 +178,43 @@ class SplashScreenActivity : AppCompatActivity() {
                 CoroutineScope(Dispatchers.IO).launch {
                     dao.deleteAll()
                     dao.insertAll(zones)
+                }
+
+            }
+            .addOnFailureListener { exception ->
+                Log.w("FireStoreData", "Error getting documents: ", exception)
+            }
+
+    }
+
+    private fun fetchDonatorFireStoreData() {
+
+        val localDB = Room.databaseBuilder(
+            this,
+            AppDatabase::class.java, Constants.DATABASE_NAME
+        ).fallbackToDestructiveMigration().build()
+        val dao = localDB.donatorDao()
+
+        val fireStoreDB = FirebaseFirestore.getInstance()
+
+        fireStoreDB.collection("donator")
+            .get()
+            .addOnSuccessListener { result ->
+
+                val donators = result.map { doc ->
+                    Donator(
+                        donatorId = doc.getString("donatorId") ?: "",
+                        name = doc.getString("name") ?: "",
+                        amount = (doc.getDouble("amount") ?: 0.0).toFloat(),
+                        address = doc.getString("address") ?: "",
+                        timeString = doc.getString("timeString") ?: "",
+                        time = doc.getLong("time") ?: 0
+                    )
+                }
+
+                CoroutineScope(Dispatchers.IO).launch {
+                    dao.deleteAll()
+                    dao.insertAll(donators)
                 }
 
             }

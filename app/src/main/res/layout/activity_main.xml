@@ -203,6 +203,20 @@
                 app:layout_constraintTop_toBottomOf="@id/cardViewStartSpeedFinder"
                 android:text="@string/nearest_speed_limit_zones" />
 
+            <TextView
+                android:id="@+id/textViewAddZoneButton"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/_30sdp"
+                android:layout_marginTop="@dimen/_8sdp"
+                android:fontFamily="@font/ar_one_sans"
+                android:gravity="center_vertical"
+                android:layout_marginHorizontal="@dimen/_12sdp"
+                android:textColor="@color/colorBlue"
+                android:textSize="@dimen/_10sdp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/cardViewStartSpeedFinder"
+                android:text="Add Zone" />
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerView"
                 android:layout_width="match_parent"
@@ -213,6 +227,112 @@
                 app:spanCount="2"
                 app:layout_constraintTop_toBottomOf="@id/textViewNearestSpeedLimitZoneHeader"/>
 
+            <TextView
+                android:id="@+id/textViewDonateHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/_30sdp"
+                android:layout_marginTop="@dimen/_8sdp"
+                android:fontFamily="@font/ar_one_sans_bold"
+                android:gravity="center_vertical"
+                android:layout_marginHorizontal="@dimen/_12sdp"
+                android:textColor="@color/text_color"
+                android:textSize="@dimen/_14sdp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/recyclerView"
+                android:text="Top Donator" />
+
+            <TextView
+                android:id="@+id/textViewDonateButton"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/_30sdp"
+                android:layout_marginTop="@dimen/_8sdp"
+                android:fontFamily="@font/ar_one_sans"
+                android:gravity="center_vertical"
+                android:layout_marginHorizontal="@dimen/_12sdp"
+                android:textColor="@color/colorBlue"
+                android:textSize="@dimen/_10sdp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/recyclerView"
+                android:text="Donate" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerViewDonate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginHorizontal="@dimen/_12sdp"
+                app:spanCount="2"
+                app:layout_constraintTop_toBottomOf="@id/textViewDonateHeader"/>
+
+            <LinearLayout
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/recyclerViewDonate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="@dimen/_50sdp"
+                android:paddingBottom="@dimen/_20sdp"
+                android:gravity="center_horizontal">
+
+                <LinearLayout
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/recyclerViewDonate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/ar_one_sans_bold"
+                        android:gravity="center_vertical"
+                        android:textColor="@color/text_color"
+                        android:textSize="@dimen/_12sdp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/recyclerView"
+                        android:text="Made with " />
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/round_favorite_24"
+                        app:tint="@color/red"
+                        android:layout_marginHorizontal="@dimen/_2sdp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/_1sdp"
+                        android:fontFamily="@font/ar_one_sans_bold"
+                        android:gravity="center_vertical"
+                        android:textColor="@color/text_color"
+                        android:textSize="@dimen/_12sdp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/recyclerView"
+                        android:text="by" />
+
+
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/textViewJypko"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/_1sdp"
+                    android:fontFamily="@font/ar_one_sans_bold"
+                    android:gravity="center_vertical"
+                    android:textColor="@color/colorBlue"
+                    android:textSize="@dimen/_12sdp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/recyclerView"
+                    android:text="Jypko" />
+
+
+            </LinearLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

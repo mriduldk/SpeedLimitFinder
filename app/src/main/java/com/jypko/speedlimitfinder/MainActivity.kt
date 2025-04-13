@@ -1,24 +1,31 @@
 package com.jypko.speedlimitfinder
 
 import android.app.ActivityManager
+import android.app.AlertDialog
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.BroadcastReceiver
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.location.Location
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.text.InputType
 import android.util.Log
 import android.view.View
+import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.marginTop
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.map
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.gms.location.CurrentLocationRequest
@@ -26,10 +33,14 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.material.snackbar.Snackbar
+import com.jypko.speedlimitfinder.adapter.DonatorAdapter
 import com.jypko.speedlimitfinder.adapter.SpeedLimitAdapter
 import com.jypko.speedlimitfinder.databinding.ActivityMainBinding
 import com.jypko.speedlimitfinder.services.LocationForegroundService
+import com.jypko.speedlimitfinder.utils.Constants
+import com.jypko.speedlimitfinder.viewmodel.DonatorViewModel
 import com.jypko.speedlimitfinder.viewmodel.SpeedLimitViewModel
+import java.net.URLEncoder
 
 class MainActivity : AppCompatActivity() {
 
@@ -39,13 +50,8 @@ class MainActivity : AppCompatActivity() {
     private val REQUEST_LOCATION_PERMISSION = 124
     private var hasLocationPermission = false
     private lateinit var adapter: SpeedLimitAdapter
+    private lateinit var adapterDonator: DonatorAdapter
     private lateinit var fusedLocationClient: FusedLocationProviderClient
-
-    /*private val speedLimitZones = listOf(
-        SpeedLimitZone(26.577515, 93.760719, 40F, 45F, "Goshanibar, Kazironga", "JG73+H6P, Assam Trunk Rd, Goshanibar, Assam 785612"),
-        SpeedLimitZone(26.586206, 93.752060, 40F, 45F, "Kohora, Kazironga", "H3GH+JVV, Assam Trunk Rd, Amguri Sang, Assam 782136"),
-        SpeedLimitZone(26.586206, 93.752060, 40F, 45F, "Bokakhat", "H8PV+J47, Assam Trunk Rd, Bagari N.C., Assam 785609")
-    )*/
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,6 +67,7 @@ class MainActivity : AppCompatActivity() {
         createNotificationChannel()
         setRecyclerViewData()
         getSpeedLimitZonesFromLocalDatabase()
+        getDonatorsFromLocalDatabase()
     }
 
     private fun permissionForPushNotification() {
@@ -126,6 +133,29 @@ class MainActivity : AppCompatActivity() {
                 permissionForLocation()
             }
         }
+
+        binding.textViewDonateButton.setOnClickListener {
+            showCopyDialog()
+        }
+
+        binding.textViewAddZoneButton.setOnClickListener {
+            showAddSpeedLimitZoneDialog()
+        }
+
+        binding.textViewJypko.setOnClickListener {
+
+            val url = "https://jypko.com"
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+            intent.setPackage("com.android.chrome")
+
+            if (intent.resolveActivity(packageManager) != null) {
+                startActivity(intent)
+            } else {
+                intent.setPackage(null)
+                startActivity(intent)
+            }
+
+        }
     }
 
     private fun getSpeedLimitZonesFromLocalDatabase() {
@@ -165,6 +195,18 @@ class MainActivity : AppCompatActivity() {
             if (!updated){
                 adapter.updateList(zones)
             }
+
+        }
+
+    }
+
+    private fun getDonatorsFromLocalDatabase() {
+
+        val viewModel = ViewModelProvider(this)[DonatorViewModel::class.java]
+
+        viewModel.allDonators.observe(this) { donators ->
+
+            adapterDonator.updateList(donators)
 
         }
 
@@ -223,6 +265,10 @@ class MainActivity : AppCompatActivity() {
         adapter = SpeedLimitAdapter(this, emptyList())
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
         binding.recyclerView.adapter = adapter
+
+        adapterDonator = DonatorAdapter(emptyList())
+        binding.recyclerViewDonate.layoutManager = LinearLayoutManager(this)
+        binding.recyclerViewDonate.adapter = adapterDonator
 
     }
 
@@ -312,6 +358,107 @@ class MainActivity : AppCompatActivity() {
         Location.distanceBetween(lat1, lon1, lat2, lon2, results)
         return results[0] / 1000.0 // convert meters to KM
     }
+
+    private fun showCopyDialog() {
+
+        val upiId = "mridul.das.9706@oksbi"
+
+        val message = """
+        You can support us by donating to the UPI ID below:
+        
+        $upiId
+
+        Note: Your donation will be reflected in the app within the next 24 hours.
+        """.trimIndent()
+
+
+        AlertDialog.Builder(this)
+            .setTitle("Support Us 🙏")
+            .setMessage(message)
+            .setPositiveButton("Copy UPI") { dialog, _ ->
+                val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                val clip = ClipData.newPlainText("UPI", upiId)
+                clipboard.setPrimaryClip(clip)
+
+                Toast.makeText(this, "UPI ID copied to clipboard", Toast.LENGTH_SHORT).show()
+                dialog.dismiss()
+            }
+            .setNegativeButton("Cancel") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
+    }
+
+    private fun showAddSpeedLimitZoneDialog() {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Add Speed Limit Zone")
+
+        val layout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(50, 40, 50, 10)
+        }
+
+        val locationInput = EditText(this).apply {
+            hint = "Enter Location Name"
+            inputType = InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
+            setBackgroundResource(R.drawable.edit_text_background)
+            setPadding(16,16,16,16)
+        }
+
+        val speedInput = EditText(this).apply {
+            hint = "Enter Speed Limit (km/h)"
+            inputType = InputType.TYPE_CLASS_NUMBER
+            setBackgroundResource(R.drawable.edit_text_background)
+            setPadding(16,16,16,16)
+        }
+
+        val layoutParams = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        ).apply {
+            topMargin = 16
+        }
+        speedInput.layoutParams = layoutParams
+
+        layout.addView(locationInput)
+        layout.addView(speedInput)
+
+        builder.setView(layout)
+
+        builder.setPositiveButton("Add") { dialog, _ ->
+            val location = locationInput.text.toString().trim()
+            val speed = speedInput.text.toString().trim()
+
+            if (location.isNotEmpty() && speed.isNotEmpty()) {
+                val message = "🚧 New Speed Limit Zone 🚗\n\n📍Location: $location\n🔒Limit: $speed km/h"
+                sendToWhatsApp(message)
+            } else {
+                Toast.makeText(this, "Please enter both fields", Toast.LENGTH_SHORT).show()
+            }
+
+            dialog.dismiss()
+        }
+
+        builder.setNegativeButton("Cancel") { dialog, _ -> dialog.dismiss() }
+
+        builder.show()
+    }
+
+    private fun sendToWhatsApp(message: String) {
+        val phoneNumber = Constants.FEEDBACK_WHATSAPP_NUMBER
+
+        try {
+            val intent = Intent(Intent.ACTION_VIEW).apply {
+                data = Uri.parse("https://wa.me/$phoneNumber?text=" + URLEncoder.encode(message, "UTF-8"))
+            }
+            startActivity(intent)
+        } catch (e: Exception) {
+            Toast.makeText(this, "WhatsApp not installed.", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+
+
 
     override fun onDestroy() {
         super.onDestroy()

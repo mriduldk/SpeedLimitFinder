@@ -1,19 +1,21 @@
 package com.jypko.speedlimitfinder.localdatabase
 
-import android.content.Context
 import androidx.room.Database
-import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.jypko.speedlimitfinder.model.Donator
 import com.jypko.speedlimitfinder.model.SpeedLimitZone
-import com.jypko.speedlimitfinder.utils.Constants
 
 @Database(
-    entities = [SpeedLimitZone::class],
-    version = 2
+    entities = [
+        SpeedLimitZone::class,
+        Donator::class
+   ],
+    version = 3
 )
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun speedLimitZoneDao(): SpeedLimitZoneDao
+    abstract fun donatorDao(): DonatorDao
 
 //    companion object {
 //

@@ -20,6 +20,9 @@ interface SpeedLimitZoneDao {
     @Query("SELECT * FROM speed_limit_zones")
     fun getAll(): LiveData<List<SpeedLimitZone>>
 
+    @Query("SELECT * FROM speed_limit_zones")
+    fun getAllForService(): List<SpeedLimitZone>
+
     @Query("SELECT * FROM speed_limit_zones LIMIT 5")
     suspend fun getTop5(): List<SpeedLimitZone>
 
