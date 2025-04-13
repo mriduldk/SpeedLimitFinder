@@ -43,6 +43,19 @@
             app:layout_constraintEnd_toStartOf="@id/textSpeedLimit" />
 
         <TextView
+            android:id="@+id/textDistance"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/ar_one_sans"
+            android:gravity="center_vertical"
+            android:text="Address"
+            android:textColor="@color/text_color_regular"
+            android:textSize="@dimen/_12sdp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textAddress"
+            app:layout_constraintEnd_toStartOf="@id/textSpeedLimit" />
+
+        <TextView
             android:id="@+id/textSeeOnMap"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -52,7 +65,7 @@
             android:textColor="@color/colorBlue"
             android:textSize="@dimen/_12sdp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/textAddress" />
+            app:layout_constraintTop_toBottomOf="@id/textDistance" />
 
 
         <TextView

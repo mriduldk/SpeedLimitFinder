@@ -18,7 +18,7 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
-import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.tasks.CancellationTokenSource
 import com.jypko.speedlimitfinder.R
 import com.jypko.speedlimitfinder.model.SpeedLimitZone
 import kotlinx.coroutines.CoroutineScope
@@ -44,7 +44,7 @@ class LocationForegroundService : Service() {
     private var isTracking = false
     private var job: Job? = null
     private lateinit var textToSpeech: TextToSpeech
-    private val SLEEP_TIME = 1 * 60 * 1000L
+    private val SLEEP_TIME = 1 * 60 * 1000L // 1 MINUTE
     private val TRACKING_DISMISS_DISTANCE = 30 // IN METER
     private val ALERT_DISTANCE = 200 // IN METER
     private val GET_NEAREST_ZONE_WITH_IN_5KM = 2 * 1000 // IN METER
@@ -81,7 +81,6 @@ class LocationForegroundService : Service() {
 
         return START_STICKY
     }
-
 
     private fun startForegroundService() {
         val notification = NotificationCompat.Builder(this, "speed_channel")
@@ -195,11 +194,30 @@ class LocationForegroundService : Service() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
             && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
         ) {
-            fusedLocationClient.lastLocation.addOnSuccessListener {
+            /*fusedLocationClient.lastLocation.addOnSuccessListener {
                 cont.resume(it)
             }.addOnFailureListener {
                 cont.resume(null)
+            }*/
+
+            val cancellationTokenSource = CancellationTokenSource()
+
+            fusedLocationClient.getCurrentLocation(
+                Priority.PRIORITY_HIGH_ACCURACY,
+                cancellationTokenSource.token
+            ).addOnSuccessListener { location ->
+                cont.resume(location)
+            }.addOnFailureListener {
+                cont.resume(null)
             }
+
+            cont.invokeOnCancellation {
+                cancellationTokenSource.cancel()
+            }
+
+        }
+        else {
+            cont.resume(null)
         }
     }
 

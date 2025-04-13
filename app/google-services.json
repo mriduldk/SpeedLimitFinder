@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "552731677925",
+    "project_id": "speed-limit-finder-6c29d",
+    "storage_bucket": "speed-limit-finder-6c29d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:552731677925:android:c485cd977bc6ef48b2f00c",
+        "android_client_info": {
+          "package_name": "com.jypko.speedlimitfinder"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAxfERRNFf_wxtuI5t_ysh8eEHWr_eotdY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

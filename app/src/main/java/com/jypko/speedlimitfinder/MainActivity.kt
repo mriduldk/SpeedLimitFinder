@@ -9,7 +9,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.location.Location
-import android.os.BatteryManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -18,22 +17,19 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.map
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
+import com.google.android.gms.location.CurrentLocationRequest
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.material.snackbar.Snackbar
 import com.jypko.speedlimitfinder.adapter.SpeedLimitAdapter
 import com.jypko.speedlimitfinder.databinding.ActivityMainBinding
-import com.jypko.speedlimitfinder.model.SpeedLimitZone
 import com.jypko.speedlimitfinder.services.LocationForegroundService
+import com.jypko.speedlimitfinder.viewmodel.SpeedLimitViewModel
 
 class MainActivity : AppCompatActivity() {
 
@@ -42,12 +38,14 @@ class MainActivity : AppCompatActivity() {
     private val REQUEST_NOTIFICATION_PERMISSION = 123
     private val REQUEST_LOCATION_PERMISSION = 124
     private var hasLocationPermission = false
+    private lateinit var adapter: SpeedLimitAdapter
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
 
-    private val speedLimitZones = listOf(
+    /*private val speedLimitZones = listOf(
         SpeedLimitZone(26.577515, 93.760719, 40F, 45F, "Goshanibar, Kazironga", "JG73+H6P, Assam Trunk Rd, Goshanibar, Assam 785612"),
         SpeedLimitZone(26.586206, 93.752060, 40F, 45F, "Kohora, Kazironga", "H3GH+JVV, Assam Trunk Rd, Amguri Sang, Assam 782136"),
         SpeedLimitZone(26.586206, 93.752060, 40F, 45F, "Bokakhat", "H8PV+J47, Assam Trunk Rd, Bagari N.C., Assam 785609")
-    )
+    )*/
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,12 +53,14 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         permissionForPushNotification()
         permissionForLocation()
         onClickListener()
         createNotificationChannel()
         setRecyclerViewData()
+        getSpeedLimitZonesFromLocalDatabase()
     }
 
     private fun permissionForPushNotification() {
@@ -128,6 +128,48 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun getSpeedLimitZonesFromLocalDatabase() {
+
+        val viewModel = ViewModelProvider(this)[SpeedLimitViewModel::class.java]
+
+        viewModel.allZones.observe(this) { zones ->
+
+            var updated = false
+
+            val locationRequest = CurrentLocationRequest.Builder()
+                .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
+                .build()
+
+            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                fusedLocationClient.getCurrentLocation(locationRequest, null)
+                    .addOnSuccessListener { location ->
+                        location?.let { userLocation ->
+
+                            viewModel.allZones.observe(this) { zones ->
+
+                                val updatedZones = zones.map { zone ->
+                                    zone.copy(distanceFromUserKm = calculateDistance(
+                                        userLocation.latitude, userLocation.longitude,
+                                        zone.latitude, zone.longitude
+                                    ))
+                                }.sortedBy { it.distanceFromUserKm }
+                                    .take(2)
+
+                                adapter.updateList(updatedZones)
+                                updated = true
+                            }
+                        }
+                    }
+            }
+
+            if (!updated){
+                adapter.updateList(zones)
+            }
+
+        }
+
+    }
+
     private fun startSpeedTrackingService() {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -178,8 +220,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun setRecyclerViewData() {
 
+        adapter = SpeedLimitAdapter(this, emptyList())
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
-        binding.recyclerView.adapter = SpeedLimitAdapter(this, speedLimitZones)
+        binding.recyclerView.adapter = adapter
 
     }
 
@@ -264,6 +307,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun calculateDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
+        val results = FloatArray(1)
+        Location.distanceBetween(lat1, lon1, lat2, lon2, results)
+        return results[0] / 1000.0 // convert meters to KM
+    }
+
     override fun onDestroy() {
         super.onDestroy()
     }
@@ -283,6 +332,7 @@ class MainActivity : AppCompatActivity() {
         super.onPause()
         LocalBroadcastManager.getInstance(this).unregisterReceiver(speedReceiver)
     }
+
 
 
 }
