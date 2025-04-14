@@ -9,8 +9,8 @@ data class SpeedLimitZone(
     @PrimaryKey
     val latitude: Double,
     val longitude: Double,
-    val speedLimit: Float = 30f,
-    val speedLimitBuffer: Float = 5f,
+    val speedLimit: Float = 40f,
+    val speedLimitBuffer: Float = 43f,
     val locationName: String = "",
     val locationAddress: String = "",
     var distanceFromUserKm: Double = 0.0

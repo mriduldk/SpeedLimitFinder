@@ -165,9 +165,9 @@ class LocationForegroundService : Service() {
                     fusedLocationClient.removeLocationUpdates(this)
                     isTracking = false
                     Log.d("SpeedTrack", "Zone crossed.")
-                } else if (speedKmH > zone.speedLimit && distance < ALERT_DISTANCE ) {
+                } else if (speedKmH > zone.speedLimitBuffer && distance < ALERT_DISTANCE ) {
                     // Speed warning (e.g., TTS or notification)
-                    Log.w("SpeedTrack", "Speed exceeds limit: $speedKmH > ${zone.speedLimit}")
+                    Log.w("SpeedTrack", "Speed exceeds limit: $speedKmH > ${zone.speedLimitBuffer} : Actual Speed Limit: ${zone.speedLimit}")
 
                     startRepeatingAlert(zone.speedLimit.toString())
 

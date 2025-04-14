@@ -142,6 +142,18 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
+                    <ImageView
+                        android:id="@+id/imageviewInstruction"
+                        android:layout_width="@dimen/_14sdp"
+                        android:layout_height="@dimen/_14sdp"
+                        android:layout_marginHorizontal="@dimen/_2sdp"
+                        android:src="@drawable/outline_help_24"
+                        app:layout_constraintBottom_toBottomOf="@id/textViewStartSpeedFinderTextHeader"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="@id/textViewStartSpeedFinderTextHeader"
+                        app:tint="@color/colorBlue" />
+
+
                     <TextView
                         android:id="@+id/textViewStartSpeedFinderText"
                         android:layout_width="match_parent"
@@ -177,9 +189,9 @@
                         android:fontFamily="@font/ar_one_sans_bold"
                         android:gravity="center"
                         android:paddingHorizontal="@dimen/_12sdp"
-                        android:text="Start Speed Finder"
+                        android:text="Start Speed Limit Finder"
                         android:textColor="@color/white"
-                        android:textSize="@dimen/_14sdp"
+                        android:textSize="@dimen/_12sdp"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/textViewStartSpeedFinderText"
                         tools:background="@drawable/bg_text_view_round_home_red" />
@@ -193,115 +205,118 @@
                 android:id="@+id/textViewNearestSpeedLimitZoneHeader"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/_30sdp"
+                android:layout_marginHorizontal="@dimen/_12sdp"
                 android:layout_marginTop="@dimen/_8sdp"
                 android:fontFamily="@font/ar_one_sans_bold"
                 android:gravity="center_vertical"
-                android:layout_marginHorizontal="@dimen/_12sdp"
+                android:text="@string/nearest_speed_limit_zones"
                 android:textColor="@color/text_color"
                 android:textSize="@dimen/_14sdp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/cardViewStartSpeedFinder"
-                android:text="@string/nearest_speed_limit_zones" />
+                app:layout_constraintTop_toBottomOf="@id/cardViewStartSpeedFinder" />
 
             <TextView
                 android:id="@+id/textViewAddZoneButton"
                 android:layout_width="wrap_content"
                 android:layout_height="@dimen/_30sdp"
+                android:layout_marginHorizontal="@dimen/_12sdp"
                 android:layout_marginTop="@dimen/_8sdp"
                 android:fontFamily="@font/ar_one_sans"
                 android:gravity="center_vertical"
-                android:layout_marginHorizontal="@dimen/_12sdp"
+                android:text="Add Zone"
                 android:textColor="@color/colorBlue"
                 android:textSize="@dimen/_10sdp"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/cardViewStartSpeedFinder"
-                android:text="Add Zone" />
+                app:layout_constraintTop_toBottomOf="@id/cardViewStartSpeedFinder" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
                 android:layout_marginHorizontal="@dimen/_12sdp"
-                app:spanCount="2"
-                app:layout_constraintTop_toBottomOf="@id/textViewNearestSpeedLimitZoneHeader"/>
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/textViewNearestSpeedLimitZoneHeader"
+                app:spanCount="2" />
 
             <TextView
                 android:id="@+id/textViewDonateHeader"
                 android:layout_width="wrap_content"
                 android:layout_height="@dimen/_30sdp"
+                android:layout_marginHorizontal="@dimen/_12sdp"
                 android:layout_marginTop="@dimen/_8sdp"
                 android:fontFamily="@font/ar_one_sans_bold"
                 android:gravity="center_vertical"
-                android:layout_marginHorizontal="@dimen/_12sdp"
+                android:text="Top Donator"
                 android:textColor="@color/text_color"
                 android:textSize="@dimen/_14sdp"
+                android:visibility="gone"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/recyclerView"
-                android:text="Top Donator" />
+                app:layout_constraintTop_toBottomOf="@id/recyclerView" />
 
             <TextView
                 android:id="@+id/textViewDonateButton"
                 android:layout_width="wrap_content"
                 android:layout_height="@dimen/_30sdp"
+                android:layout_marginHorizontal="@dimen/_12sdp"
                 android:layout_marginTop="@dimen/_8sdp"
                 android:fontFamily="@font/ar_one_sans"
                 android:gravity="center_vertical"
-                android:layout_marginHorizontal="@dimen/_12sdp"
+                android:text="Donate"
                 android:textColor="@color/colorBlue"
                 android:textSize="@dimen/_10sdp"
+                android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/recyclerView"
-                android:text="Donate" />
+                app:layout_constraintTop_toBottomOf="@id/recyclerView" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerViewDonate"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
                 android:layout_marginHorizontal="@dimen/_12sdp"
-                app:spanCount="2"
-                app:layout_constraintTop_toBottomOf="@id/textViewDonateHeader"/>
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/textViewDonateHeader"
+                app:spanCount="2" />
 
             <LinearLayout
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/recyclerViewDonate"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
                 android:layout_marginTop="@dimen/_50sdp"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
                 android:paddingBottom="@dimen/_20sdp"
-                android:gravity="center_horizontal">
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/recyclerViewDonate">
 
                 <LinearLayout
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/recyclerViewDonate"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
                     android:orientation="horizontal"
-                    android:gravity="center_horizontal">
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/recyclerViewDonate">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="@font/ar_one_sans_bold"
                         android:gravity="center_vertical"
+                        android:text="Made with "
                         android:textColor="@color/text_color"
                         android:textSize="@dimen/_12sdp"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/recyclerView"
-                        android:text="Made with " />
+                        app:layout_constraintTop_toBottomOf="@id/recyclerView" />
 
                     <ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="@dimen/_2sdp"
                         android:src="@drawable/round_favorite_24"
-                        app:tint="@color/red"
-                        android:layout_marginHorizontal="@dimen/_2sdp"/>
+                        app:tint="@color/red" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -309,11 +324,11 @@
                         android:layout_marginStart="@dimen/_1sdp"
                         android:fontFamily="@font/ar_one_sans_bold"
                         android:gravity="center_vertical"
+                        android:text="by"
                         android:textColor="@color/text_color"
                         android:textSize="@dimen/_12sdp"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/recyclerView"
-                        android:text="by" />
+                        app:layout_constraintTop_toBottomOf="@id/recyclerView" />
 
 
                 </LinearLayout>
@@ -325,11 +340,11 @@
                     android:layout_marginTop="@dimen/_1sdp"
                     android:fontFamily="@font/ar_one_sans_bold"
                     android:gravity="center_vertical"
+                    android:text="Jypko"
                     android:textColor="@color/colorBlue"
                     android:textSize="@dimen/_12sdp"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/recyclerView"
-                    android:text="Jypko" />
+                    app:layout_constraintTop_toBottomOf="@id/recyclerView" />
 
 
             </LinearLayout>

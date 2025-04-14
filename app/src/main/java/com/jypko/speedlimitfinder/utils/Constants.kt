@@ -6,6 +6,8 @@ object Constants {
 
     const val  MyPREFERENCES = "MyPREFERENCES"
     const val  AD_CLICK_COUNT = "AD_CLICK_COUNT"
+    const val  ADMIN_ANDROID_ID = "c723e47e27573242"
+    const val  is_not_first_launch = "is_not_first_launch"
 
     const val  DATABASE_NAME = "com.jypko.speedlimitfinder.db"
 
@@ -19,6 +21,7 @@ object Constants {
 
     const val UPDATE_AVAILABLE = "UPDATE_AVAILABLE"
     const val UPDATE_CHECK_TIME = "UPDATE_CHECK_TIME"
+    const val last_run_date = "last_run_date"
 
 
 }

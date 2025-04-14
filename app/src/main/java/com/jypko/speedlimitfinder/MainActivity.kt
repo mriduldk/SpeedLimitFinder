@@ -15,6 +15,7 @@ import android.location.Location
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.text.InputType
 import android.util.Log
 import android.view.View
@@ -33,11 +34,15 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import com.jypko.speedlimitfinder.adapter.DonatorAdapter
 import com.jypko.speedlimitfinder.adapter.SpeedLimitAdapter
 import com.jypko.speedlimitfinder.databinding.ActivityMainBinding
+import com.jypko.speedlimitfinder.model.SpeedLimitZone
 import com.jypko.speedlimitfinder.services.LocationForegroundService
 import com.jypko.speedlimitfinder.utils.Constants
+import com.jypko.speedlimitfinder.utils.SharedPref
 import com.jypko.speedlimitfinder.viewmodel.DonatorViewModel
 import com.jypko.speedlimitfinder.viewmodel.SpeedLimitViewModel
 import java.net.URLEncoder
@@ -67,8 +72,20 @@ class MainActivity : AppCompatActivity() {
         createNotificationChannel()
         setRecyclerViewData()
         getSpeedLimitZonesFromLocalDatabase()
-        getDonatorsFromLocalDatabase()
+        //getDonatorsFromLocalDatabase()
+        checkFirstTimeLaunch()
     }
+
+    private fun checkFirstTimeLaunch() {
+
+        var isNotFirstLaunch = SharedPref().getBooleanPref(this, Constants.is_not_first_launch)
+
+        if (!isNotFirstLaunch) {
+            showInstructionDialog()
+            SharedPref().setBoolean(this, Constants.is_not_first_launch, true)
+        }
+    }
+
 
     private fun permissionForPushNotification() {
 
@@ -139,7 +156,15 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.textViewAddZoneButton.setOnClickListener {
-            showAddSpeedLimitZoneDialog()
+
+            val androidId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
+
+            if (androidId == Constants.ADMIN_ANDROID_ID) {
+                showAddSpeedLimitZoneDialogForAdmin()
+            }
+            else {
+                showAddSpeedLimitZoneDialog()
+            }
         }
 
         binding.textViewJypko.setOnClickListener {
@@ -156,6 +181,11 @@ class MainActivity : AppCompatActivity() {
             }
 
         }
+
+        binding.imageviewInstruction.setOnClickListener {
+            showInstructionDialog()
+        }
+
     }
 
     private fun getSpeedLimitZonesFromLocalDatabase() {
@@ -183,7 +213,7 @@ class MainActivity : AppCompatActivity() {
                                         zone.latitude, zone.longitude
                                     ))
                                 }.sortedBy { it.distanceFromUserKm }
-                                    .take(2)
+                                    .take(5)
 
                                 adapter.updateList(updatedZones)
                                 updated = true
@@ -224,20 +254,20 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateButtonText() {
         if (isMyServiceRunning(LocationForegroundService::class.java)) {
-            binding.textViewStartSpeedFinderButton.text = "Stop Speed Finder"
+            binding.textViewStartSpeedFinderButton.text = "Stop Speed Limit Finder"
             binding.textViewStartSpeedFinderButton.background = ContextCompat.getDrawable(this, R.drawable.bg_text_view_round_home_red)
         } else {
-            binding.textViewStartSpeedFinderButton.text = "Start Speed Finder"
+            binding.textViewStartSpeedFinderButton.text = "Start Speed Limit Finder"
             binding.textViewStartSpeedFinderButton.background = ContextCompat.getDrawable(this, R.drawable.bg_text_view_round_home_blue)
         }
     }
 
     private fun updateButtonTextManual(status: String) {
         if (status == "START") {
-            binding.textViewStartSpeedFinderButton.text = "Stop Speed Finder"
+            binding.textViewStartSpeedFinderButton.text = "Stop Speed Limit Finder"
             binding.textViewStartSpeedFinderButton.background = ContextCompat.getDrawable(this, R.drawable.bg_text_view_round_home_red)
         } else {
-            binding.textViewStartSpeedFinderButton.text = "Start Speed Finder"
+            binding.textViewStartSpeedFinderButton.text = "Start Speed Limit Finder"
             binding.textViewStartSpeedFinderButton.background = ContextCompat.getDrawable(this, R.drawable.bg_text_view_round_home_blue)
         }
     }
@@ -405,6 +435,20 @@ class MainActivity : AppCompatActivity() {
             setPadding(16,16,16,16)
         }
 
+        val latitudeInput = EditText(this).apply {
+            hint = "Enter Latitude"
+            inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
+            setBackgroundResource(R.drawable.edit_text_background)
+            setPadding(16,16,16,16)
+        }
+
+        val longitudeInput = EditText(this).apply {
+            hint = "Enter Longitude"
+            inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
+            setBackgroundResource(R.drawable.edit_text_background)
+            setPadding(16,16,16,16)
+        }
+
         val speedInput = EditText(this).apply {
             hint = "Enter Speed Limit (km/h)"
             inputType = InputType.TYPE_CLASS_NUMBER
@@ -418,22 +462,29 @@ class MainActivity : AppCompatActivity() {
         ).apply {
             topMargin = 16
         }
+        longitudeInput.layoutParams = layoutParams
+        latitudeInput.layoutParams = layoutParams
         speedInput.layoutParams = layoutParams
 
         layout.addView(locationInput)
+        layout.addView(latitudeInput)
+        layout.addView(longitudeInput)
         layout.addView(speedInput)
 
         builder.setView(layout)
 
         builder.setPositiveButton("Add") { dialog, _ ->
+            val latitude = latitudeInput.text.toString().trim()
+            val longitude = longitudeInput.text.toString().trim()
             val location = locationInput.text.toString().trim()
             val speed = speedInput.text.toString().trim()
 
-            if (location.isNotEmpty() && speed.isNotEmpty()) {
-                val message = "🚧 New Speed Limit Zone 🚗\n\n📍Location: $location\n🔒Limit: $speed km/h"
+            if (location.isNotEmpty() && latitude.isNotEmpty() && longitude.isNotEmpty() && speed.isNotEmpty()) {
+                //val message = "🚧 New Speed Limit Zone 🚗\n\n📍Location: $location\n🔒Limit: $speed km/h"
+                val message = "🚧 New Speed Limit Zone 🚗\n\n📍Location: $location\n🌐Latitude: $latitude\n🌐Longitude: $longitude\n🔒Limit: $speed km/h"
                 sendToWhatsApp(message)
             } else {
-                Toast.makeText(this, "Please enter both fields", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Please enter all fields", Toast.LENGTH_SHORT).show()
             }
 
             dialog.dismiss()
@@ -457,7 +508,75 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun showAddSpeedLimitZoneDialogForAdmin() {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_location_input, null)
 
+        val editLatitude = dialogView.findViewById<EditText>(R.id.editLatitude)
+        val editLongitude = dialogView.findViewById<EditText>(R.id.editLongitude)
+        val editSpeedLimit = dialogView.findViewById<EditText>(R.id.editSpeedLimit)
+        val editSpeedLimitBuffer = dialogView.findViewById<EditText>(R.id.editSpeedLimitBuffer)
+        val editLocationName = dialogView.findViewById<EditText>(R.id.editLocationName)
+        val editLocationAddress = dialogView.findViewById<EditText>(R.id.editLocationAddress)
+
+        AlertDialog.Builder(this)
+            .setTitle("Enter Speed Limit Details")
+            .setView(dialogView)
+            .setPositiveButton("Add") { _, _ ->
+                val latitude = editLatitude.text.toString().toDoubleOrNull() ?: 0.0
+                val longitude = editLongitude.text.toString().toDoubleOrNull() ?: 0.0
+                val speedLimit = editSpeedLimit.text.toString().toFloatOrNull() ?: 40f
+                val speedLimitBuffer = editSpeedLimitBuffer.text.toString().toFloatOrNull() ?: 43f
+                val locationName = editLocationName.text.toString()
+                val locationAddress = editLocationAddress.text.toString()
+
+                val data = SpeedLimitZone(
+                    latitude = latitude,
+                    longitude = longitude,
+                    speedLimit = speedLimit,
+                    speedLimitBuffer = speedLimitBuffer,
+                    locationName = locationName,
+                    locationAddress = locationAddress,
+                )
+
+                Firebase.firestore.collection("speedLimitZones")
+                    .add(data)
+                    .addOnSuccessListener {
+                        Toast.makeText(this, "Location added successfully", Toast.LENGTH_SHORT).show()
+                    }
+                    .addOnFailureListener { e ->
+                        Toast.makeText(this, "Failed to add: ${e.message}", Toast.LENGTH_LONG).show()
+                    }
+
+                // Use the data as needed
+                Toast.makeText(this, "Location added: $locationName", Toast.LENGTH_SHORT).show()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun showInstructionDialog() {
+        val message = """
+        🚀 How to Use Speed Limit Finder
+
+        ✅ Click on "Start Speed Limit Finder" button.
+        ✅ The app will detect nearby speed limit zones.
+        ✅ You’ll get alerts 200 meters before a zone if you're speeding.
+
+        📱 Once started, you'll receive a notification — feel free to minimize the app.
+
+        🛑 To stop, click on "Stop Speed Limit Finder" button.
+
+        Stay safe and drive responsibly! 🚗💨
+    """.trimIndent()
+
+        AlertDialog.Builder(this)
+            .setTitle("Instructions 📋")
+            .setMessage(message)
+            .setPositiveButton("Got It") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
+    }
 
 
     override fun onDestroy() {

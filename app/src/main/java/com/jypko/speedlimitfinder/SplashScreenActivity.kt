@@ -20,7 +20,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.checkerframework.common.returnsreceiver.qual.This
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class SplashScreenActivity : AppCompatActivity() {
 
@@ -33,50 +35,58 @@ class SplashScreenActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash_screen)
 
-        //fetchDonatorFireStoreData()
-        //fetchFireStoreData()
-        appUpdateCheck()
+        appUpdateManager = AppUpdateManagerFactory.create(this@SplashScreenActivity)
+
+        fetchFireStoreData()
+        runOncePerDay()
     }
+
+    private fun runOncePerDay() {
+
+        val lastRunDate = SharedPref().getStringPref(this, Constants.last_run_date)
+        val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+
+        Log.e(TAG, "runOncePerDay : $lastRunDate : $today" )
+
+        if (lastRunDate != today) {
+
+            appUpdateCheck()
+            //fetchFireStoreData()
+            //fetchFireStoreData()
+
+            SharedPref().setString(this, Constants.last_run_date, today)
+        }
+        else {
+            redirectToMainActivity()
+        }
+    }
+
 
     private fun appUpdateCheck() {
 
-        val update_check_time = SharedPref().getLongPref(this, Constants.UPDATE_CHECK_TIME)
-        val update_available = SharedPref().getBooleanPref(this, Constants.UPDATE_AVAILABLE)
+        val appUpdateInfoTask = appUpdateManager.appUpdateInfo
 
-        val currentTimeLong = System.currentTimeMillis()
+        CoroutineScope(Dispatchers.Main).launch {
 
-        if (currentTimeLong - update_check_time >= (1000 * 60 * 60) || update_available ) {
+            delay(1000)
+            appUpdateInfoTask.addOnSuccessListener { appUpdateInfo ->
 
-            SharedPref().setLong(this, Constants.UPDATE_CHECK_TIME, currentTimeLong)
+                if(appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)) {
 
-            appUpdateManager = AppUpdateManagerFactory.create(this@SplashScreenActivity)
-            val appUpdateInfoTask = appUpdateManager.appUpdateInfo
+                    startTheUpdate(appUpdateInfo)
+                    SharedPref().setBoolean(this@SplashScreenActivity, Constants.UPDATE_AVAILABLE, true)
 
-            CoroutineScope(Dispatchers.Main).launch {
-
-                delay(1000)
-                appUpdateInfoTask.addOnSuccessListener { appUpdateInfo ->
-
-                    if(appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)) {
-
-                        startTheUpdate(appUpdateInfo)
-                        SharedPref().setBoolean(this@SplashScreenActivity, Constants.UPDATE_AVAILABLE, true)
-
-                    } else {
-                        Log.e(TAG, "onCreate: Update not Available" )
-                        SharedPref().setBoolean(this@SplashScreenActivity, Constants.UPDATE_AVAILABLE, false)
-                        redirectToMainActivity()
-                    }
-
-                }.addOnFailureListener { exception ->
-
-                    Log.e(TAG, "onCreate: Update Check Availability Failed:  $exception" )
+                } else {
+                    Log.e(TAG, "onCreate: Update not Available" )
+                    SharedPref().setBoolean(this@SplashScreenActivity, Constants.UPDATE_AVAILABLE, false)
                     redirectToMainActivity()
                 }
+
+            }.addOnFailureListener { exception ->
+
+                Log.e(TAG, "onCreate: Update Check Availability Failed:  $exception" )
+                redirectToMainActivity()
             }
-        }
-        else{
-            redirectToMainActivity()
         }
 
     }
@@ -169,7 +179,7 @@ class SplashScreenActivity : AppCompatActivity() {
                         latitude = doc.getDouble("latitude") ?: 0.0,
                         longitude = doc.getDouble("longitude") ?: 0.0,
                         speedLimit = (doc.getDouble("speedLimit") ?: 40.0).toFloat(),
-                        speedLimitBuffer = (doc.getDouble("speedLimitBuffer") ?: 5.0).toFloat(),
+                        speedLimitBuffer = (doc.getDouble("speedLimitBuffer") ?: 43.0).toFloat(),
                         locationName = doc.getString("locationName") ?: "",
                         locationAddress = doc.getString("locationAddress") ?: ""
                     )
