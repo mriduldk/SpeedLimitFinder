@@ -44,7 +44,8 @@ class LocationForegroundService : Service() {
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationCallback: LocationCallback
-//    private val speedLimitZones = listOf(
+
+    //    private val speedLimitZones = listOf(
 //        SpeedLimitZone(26.577515, 93.760719), // Example points
 //        SpeedLimitZone(26.586206, 93.752060)
 //    )
@@ -53,9 +54,9 @@ class LocationForegroundService : Service() {
     private var isTracking = false
     private var job: Job? = null
     private lateinit var textToSpeech: TextToSpeech
-    private val SLEEP_TIME = 1 * 60 * 1000L // 1 MINUTE
-    private val TRACKING_DISMISS_DISTANCE = 30 // IN METER
-    private val ALERT_DISTANCE = 200 // IN METER
+    private val SLEEP_TIME = 1 * 15 * 1000L //1 * 60 * 1000L // 1 MINUTE
+    private val TRACKING_DISMISS_DISTANCE = 20 // IN METER
+    private val ALERT_DISTANCE = 300 // IN METER
     private val GET_NEAREST_ZONE_WITH_IN_5KM = 2 * 1000 // IN METER
 
     override fun onBind(intent: Intent?): IBinder? = null
@@ -118,13 +119,22 @@ class LocationForegroundService : Service() {
     }
 
     private fun startCheckingNearbyZones() {
+
+        var previousLocation: Location? = null
+
         job = CoroutineScope(Dispatchers.Default).launch {
             while (true) {
                 if (!isTracking) {
                     val currentLocation = getLastKnownLocation() ?: continue
+                    // Skip if we don't have previousLocation yet
+                    if (previousLocation == null) {
+                        previousLocation = currentLocation
+                        delay(SLEEP_TIME)
+                        continue
+                    }
                     val nearestZone = getNearestZoneWithin5km(currentLocation)
 
-                    if (nearestZone != null && isUserHeadingTowards(currentLocation, nearestZone)) {
+                    if (nearestZone != null && isUserHeadingTowards(currentLocation, previousLocation, nearestZone)) {
                         isTracking = true
                         Log.d("isTracking", "isTracking: true")
                         trackSpeedUntilZoneCrossed(currentLocation, nearestZone)
@@ -132,6 +142,9 @@ class LocationForegroundService : Service() {
                         Log.d("isTracking", "isTracking: false")
                         delay(SLEEP_TIME) // Sleep for 5 minutes
                     }
+
+                    // Update previous location after processing
+                    previousLocation = currentLocation
                 }
             }
         }
@@ -211,6 +224,36 @@ class LocationForegroundService : Service() {
         val bearingToTarget = current.bearingTo(targetLoc)
         val headingDiff = abs(bearingToTarget - current.bearing)
         return headingDiff < 90 // heading towards
+    }
+    private fun isUserHeadingTowards(
+        current: Location,
+        previous: Location?,
+        zone: SpeedLimitZone
+    ): Boolean {
+        val targetLoc = Location("").apply {
+            latitude = zone.latitude
+            longitude = zone.longitude
+        }
+
+        // Compute bearings
+        val bearingToTarget = current.bearingTo(targetLoc)
+        val headingDiff = abs(bearingToTarget - current.bearing).let {
+            if (it > 180) 360 - it else it
+        }
+
+        // Check if user is heading generally towards the target
+        val isHeadingCorrect = headingDiff < 90
+
+        // Check if the distance to the target is decreasing
+        val prevDistance = previous?.distanceTo(targetLoc)
+        val currDistance = current.distanceTo(targetLoc)
+
+        var isGettingCloser = true
+        if (prevDistance != null){
+            isGettingCloser = currDistance < prevDistance
+        }
+
+        return isHeadingCorrect && isGettingCloser
     }
 
     private suspend fun getLastKnownLocation(): Location? = suspendCancellableCoroutine { cont ->
